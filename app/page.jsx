@@ -1,16 +1,48 @@
 // pages/index.js
 "use client";
+import { getSession } from "next-auth/react";
 import React, { useState, useEffect } from "react";
-
+import { useSession } from "next-auth/react";
 const Home = () => {
   const [posts, setPosts] = useState([]);
   const [newComment, setNewComment] = useState({ name: "", email: "", content: "" });
   const [selectedPostId, setSelectedPostId] = useState(null); // State to track the selected post
+  const { data: session } = useSession();
+  const [follows, setFollows] = useState([]);
 
   useEffect(() => {
+    const fetchFollows = async () => {
+      try {
+        const res = await fetch("/api/fetchUser", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: session.user.email }), // Send the user's email
+        });
+  
+        if (res.ok) {
+          const data = await res.json();
+          const follows = data.follows || []; // Ensure follows is an array
+          setFollows(follows);
+        } else {
+          console.error("Failed to fetch follows");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+  
     const fetchPosts = async () => {
       try {
-        const res = await fetch("/api/PostFetch");
+        const res = await fetch("/api/PostFetch", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ follows }), // Send the list of followed users' emails
+        });
+  
         if (res.ok) {
           const data = await res.json();
           setPosts(data.posts);
@@ -21,9 +53,13 @@ const Home = () => {
         console.error("Error:", error);
       }
     };
-
-    fetchPosts();
-  }, []);
+  
+    if (session) {
+      fetchFollows();
+      fetchPosts();
+    }
+  }, [session]);
+  
 
   const handleCommentSubmit = async (postId) => {
     try {
@@ -59,7 +95,7 @@ const Home = () => {
       <h1 className="text-4xl font-bold mb-8">Home Page</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {posts.map((post) => (
-          <div key={post._id} className="bg-white shadow-md p-6 rounded-lg hover:shadow-lg transition duration-300">
+          <div key={post._id} className="bg-white shadow-md p-6 rounded-2xl hover:shadow-lg hover:shadow-blue-800 transition duration-300">
             <h2 className="text-xl font-semibold mb-4">{post._id}</h2>
             <h2 className="text-xl font-semibold mb-4">{post.name}</h2>
             <h2 className="text-gray-600 text-sm mb-2">{post.email}</h2>

@@ -38,7 +38,7 @@ function Navbar() {
           </Link>
           <button onClick={() => signOut()} className="px-3 py-2 rounded bg-blue-950 text-white hover:bg-transparent">Sign out</button>
         </div>
-        <span className="ml-4">Welcome {session.user._id}</span>
+        <span className="ml-4">Welcome {session.user.name}</span>
       </div>
       )}
       
