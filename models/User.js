@@ -11,7 +11,6 @@ const userSchema = new Schema(
     },
     dob: {
       type: Date,
-      unique: true,
       required: true,
     },
     email: {
