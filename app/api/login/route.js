@@ -3,7 +3,7 @@
 import User from "@/models/User";
 import connect from "@/utils/db";
 import { NextResponse } from "next/server";
-
+export const revalidate = 0;
 export const GET = async (req, res) => {
   try {
     await connect();
