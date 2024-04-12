@@ -1,47 +1,57 @@
 // pages/Users.js
 "use client";
+// Users.js
+
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import SendFriendRequestButton from './SendFriendRequestButton/page';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
   const { data: session } = useSession();
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const res = await fetch('/api/users');
-        const responseData = await res.json();
-        console.log(responseData.users);
-        setUsers(responseData.users);
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
-  const handleFollowUser = async (userEmail) => {
+// Inside your component where you fetch users
+useEffect(() => {
+  const fetchUsers = async () => {
     try {
-      const res = await fetch(`/api/follow`, {
-        method: 'PUT',
+      const res = await fetch('/api/users', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userEmailToFollow: userEmail, MyEmail: session.user.email }),
+        body: JSON.stringify({ userEmail: session.user.email }), // Assuming you have the session
+      });
+      const responseData = await res.json();
+      setUsers(responseData.users);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  fetchUsers();
+}, []);
+
+
+  const handleSendFriendRequest = async (recipientEmail) => {
+    try {
+      const res = await fetch('/api/sendFriendRequest', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ senderEmail: session.user.email, recipientEmail }),
       });
       if (res.ok) {
-        // Refresh users after successful follow
+        // Refresh users after successful request
         const updatedUsers = users.map((user) => {
-          if (user.email === userEmail) {
-            return { ...user, isFollowed: true };
+          if (user.email === recipientEmail) {
+            return { ...user, isFollowed: true }; // Update UI if needed
           }
           return user;
         });
         setUsers(updatedUsers);
       } else {
-        console.error('Failed to follow user');
+        console.error('Failed to send friend request');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -56,18 +66,7 @@ const Users = () => {
           <div key={user.email} className="bg-white shadow-md p-6 rounded-lg hover:shadow-lg transition duration-300">
             <h2 className="text-xl font-semibold mb-4">{user.name}</h2>
             <h2 className="text-gray-600 text-sm mb-2">{user.email}</h2>
-            {user.isFollowed ? (
-              <button className="bg-gray-300 text-gray-700 py-2 px-4 rounded inline-block cursor-not-allowed" disabled>
-                Followed
-              </button>
-            ) : (
-              <button
-                className="bg-primary text-black py-2 px-4 rounded inline-block hover:bg-primary-dark focus:outline-none focus:bg-primary-dark"
-                onClick={() => handleFollowUser(user.email)}
-              >
-                Follow User
-              </button>
-            )}
+            <SendFriendRequestButton recipientEmail={user.email} onSendRequest={handleSendFriendRequest} />
           </div>
         ))}
       </div>

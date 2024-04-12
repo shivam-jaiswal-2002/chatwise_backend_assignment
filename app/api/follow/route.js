@@ -8,7 +8,7 @@ export const PUT = async (req) => {
     const db = await connect();
 
     const { userEmailToFollow, MyEmail } = await req.json();
-    console.log(userEmailToFollow, MyEmail);
+    console.log("follow route",userEmailToFollow, MyEmail);
     // Find the logged-in user
     const loggedInUser = await User.findOne({ email: MyEmail });
     // Find the user to follow

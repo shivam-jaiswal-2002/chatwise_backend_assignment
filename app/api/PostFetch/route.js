@@ -8,7 +8,19 @@ export const POST = async (req) => {
 
     const { follows } = await req.json();
     console.log(follows);
-    const posts = await Post.find({ email: { $in: follows } }).sort({ createdAt: -1 });
+
+    // Find posts created by followed users or posts with comments made by followed users
+    const posts = await Post.aggregate([
+      {
+        $match: {
+          $or: [
+            { email: { $in: follows } }, // Posts made by followed users
+            { "comments.email": { $in: follows } }, // Posts with comments made by followed users
+          ],
+        },
+      },
+      { $sort: { createdAt: -1 } },
+    ]);
 
     return new Response(JSON.stringify({ posts }), {
       headers: { "Content-Type": "application/json" },

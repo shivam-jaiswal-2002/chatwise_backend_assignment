@@ -22,6 +22,12 @@ const userSchema = new Schema(
       type: String,
       required: false,
     },
+    FriendRequestSent:[
+      {type: String,}
+    ],
+    FriendRequestReceived:[
+      {type: String,}
+    ],
     follows: [{ type: String }],
   },
   { timestamps: true }
