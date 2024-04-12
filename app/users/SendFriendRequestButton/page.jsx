@@ -1,5 +1,5 @@
 // SendFriendRequestButton.js
-
+"use client";
 import React, { useState } from 'react';
 
 const SendFriendRequestButton = ({ recipientEmail, onSendRequest }) => {
