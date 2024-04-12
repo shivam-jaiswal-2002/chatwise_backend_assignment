@@ -1,11 +1,10 @@
 // pages/index.js
 "use client";
-import { getSession } from "next-auth/react";
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 const Home = () => {
   const [posts, setPosts] = useState([]);
-  const [newComment, setNewComment] = useState({ name: "", email: "", content: "" });
+  const [newComment, setNewComment] = useState({ content: "" });
   const [selectedPostId, setSelectedPostId] = useState(null); // State to track the selected post
   const { data: session } = useSession();
   const [follows, setFollows] = useState([]);
@@ -68,20 +67,20 @@ const Home = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ Id : postId, comment: newComment }),
+        body: JSON.stringify({ Id : postId, comment: { ...newComment, name: session.user.name, email: session.user.email } }),
       });
       if (res.ok) {
         const updatedPosts = posts.map((post) => {
           if (post._id === postId) {
             return {
               ...post,
-              comments: [...post.comments, newComment],
+              comments: [...post.comments, { ...newComment, name: session.user.name, email: session.user.email }],
             };
           }
           return post;
         });
         setPosts(updatedPosts);
-        setNewComment({ name: "", email: "", content: "" });
+        setNewComment({ content: "" });
       } else {
         console.error("Failed to submit comment");
       }
@@ -96,7 +95,6 @@ const Home = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {posts.map((post) => (
           <div key={post._id} className="bg-white shadow-md p-6 rounded-2xl hover:shadow-lg hover:shadow-blue-800 transition duration-300">
-            <h2 className="text-xl font-semibold mb-4">{post._id}</h2>
             <h2 className="text-xl font-semibold mb-4">{post.name}</h2>
             <h2 className="text-gray-600 text-sm mb-2">{post.email}</h2>
             <p className="text-gray-700">{post.content}</p>
@@ -113,20 +111,14 @@ const Home = () => {
               {selectedPostId === post._id ? (
                 <form onSubmit={(e) => { e.preventDefault(); handleCommentSubmit(post._id); }}>
                   <input
-                    type="text"
-                    className="w-full rounded border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-                    placeholder="Your Name"
-                    value={newComment.name}
-                    onChange={(e) => setNewComment({ ...newComment, name: e.target.value })}
-                    required
+                    type="hidden"
+                    name="name"
+                    value={session.user.name}
                   />
                   <input
-                    type="email"
-                    className="w-full mt-2 rounded border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-                    placeholder="Your Email"
-                    value={newComment.email}
-                    onChange={(e) => setNewComment({ ...newComment, email: e.target.value })}
-                    required
+                    type="hidden"
+                    name="email"
+                    value={session.user.email}
                   />
                   <textarea
                     className="w-full mt-2 rounded border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"

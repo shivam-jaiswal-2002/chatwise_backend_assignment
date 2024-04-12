@@ -26,10 +26,9 @@ const Login = () => {
         const userData = await response.json();
         setUserData(userData);
       } else {
-        setError("Error fetching user data");
+        console.log("Error fetching user data");
       }
     } catch (error) {
-      setError("Error fetching user data");
       console.error("Error fetching user data:", error);
     }
   };
@@ -142,14 +141,7 @@ const Login = () => {
                 {error && error}
               </p>
             </form>
-            <button
-              className="inline-block w-full rounded bg-black text-white py-2 hover:bg-gray-800"
-              onClick={() => {
-                signIn("github");
-              }}
-            >
-              Sign In with Github
-            </button>
+            
             <div className="text-center text-gray-500 mt-4">- OR -</div>
             <Link
               className="block text-center text-blue-500 hover:underline mt-2"

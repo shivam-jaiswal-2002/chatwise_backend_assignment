@@ -36,6 +36,9 @@ function Navbar() {
           <Link href="/users">
             <button className="px-3 py-2 mr-2 rounded bg-blue-950 text-white hover:bg-transparent">Meet new Users</button>
           </Link>
+          <Link href="/ViewFriends">
+            <button className="px-3 py-2 mr-2 rounded bg-blue-950 text-white hover:bg-transparent">View Friends</button>
+          </Link>
           <Link href="/FriendRequests">
             <button className="px-3 py-2 mr-2 rounded bg-blue-950 text-white hover:bg-transparent">Friend Requests</button>
           </Link>
